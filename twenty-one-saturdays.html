@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Twenty-One Saturdays — A Screening Programme</title>
+<meta name="description" content="Twenty-one cult classics, one per Saturday, August through December 2026. A five-part screening programme." />
+<meta name="theme-color" content="#E4E2D6" />
+<meta name="color-scheme" content="light only" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Twenty-One Saturdays" />
+<meta property="og:description" content="Twenty-one cult classics, one per Saturday, August through December 2026." />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23C33A1B'/%3E%3Ctext x='16' y='23' font-family='Helvetica,Arial,sans-serif' font-weight='bold' font-size='19' fill='%23E4E2D6' text-anchor='middle'%3E21%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Familjen+Grotesk:ital,wght@0,400;0,500;0,600;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  /* ══════════════════════════════════════════
+     TOKENS
+     ══════════════════════════════════════════ */
+  :root{
+    --paper:#E4E2D6;
+    --soot:#17161A;
+
+    --ink-blue:#20306B;
+    --ink-rust:#C33A1B;
+    --ink-plum:#3E1B41;
+    --ink-teal:#0D6157;
+    --ink-ox:#6E1322;
+    --ink-pink:#FF4B8B;
+
+    /* strong curves — the CSS built-ins are too weak */
+    --ease-out:cubic-bezier(0.23,1,0.32,1);
+    --ease-in-out:cubic-bezier(0.77,0,0.175,1);
+    --ease:cubic-bezier(0.4,0,0.2,1);
+
+    --gut:clamp(18px,4.2vw,64px);
+    --rule:1.5px solid var(--soot);
+    --band-h:46px;
+  }
+
+  *,*::before,*::after{box-sizing:border-box}
+
+  html{
+    -webkit-text-size-adjust:100%;
+    scroll-behavior:smooth;
+  }
+
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--soot);
+    font-family:"Familjen Grotesk",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-size:16px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+    overflow-wrap:break-word;
+  }
+
+  /* paper grain */
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:9;
+    opacity:.34;
+    mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+  }
+
+  ::selection{background:var(--ink-pink);color:var(--paper)}
+
+  :focus-visible{outline:2.5px solid var(--ink-rust);outline-offset:3px}
+
+  .wrap{
+    width:100%;
+    max-width:1180px;
+    margin:0 auto;
+    padding:0 var(--gut);
+  }
+
+  a{color:inherit}
+
+  /* ══════════════════════════════════════════
+     LOAD SEQUENCE — orchestrated stagger
+     ══════════════════════════════════════════ */
+  @keyframes riseIn{
+    from{opacity:0;transform:translateY(14px)}
+    to{opacity:1;transform:none}
+  }
+  .lift{
+    opacity:0;
+    animation:riseIn 620ms var(--ease-out) both;
+  }
+  .d1{animation-delay:40ms}
+  .d2{animation-delay:110ms}
+  .d3{animation-delay:180ms}
+  .d4{animation-delay:270ms}
+  .d5{animation-delay:350ms}
+  .d6{animation-delay:430ms}
+
+  /* ══════════════════════════════════════════
+     MASTHEAD
+     ══════════════════════════════════════════ */
+  .masthead{padding:clamp(24px,6vw,68px) 0 0}
+
+  .eyebrow{
+    font-family:"Space Mono",ui-monospace,monospace;
+    font-size:clamp(9.5px,2.4vw,11px);
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    display:flex;
+    flex-wrap:wrap;
+    gap:4px 16px;
+    align-items:baseline;
+    padding-bottom:12px;
+    border-bottom:var(--rule);
+  }
+  .eyebrow .end{margin-left:auto}
+
+  .masthead h1{
+    font-family:"Syne",sans-serif;
+    font-weight:800;
+    font-size:clamp(46px,13.2vw,176px);
+    line-height:.84;
+    letter-spacing:-.035em;
+    text-transform:uppercase;
+    margin:clamp(16px,3.4vw,36px) 0 0;
+    max-width:12ch;
+  }
+  .masthead h1 span{display:block}
+  .masthead h1 .b{color:var(--ink-rust)}
+
+  .standfirst{
+    margin:clamp(18px,3vw,34px) 0 0;
+    max-width:46ch;
+    font-size:clamp(15px,1.6vw,18.5px);
+    line-height:1.5;
+  }
+  .standfirst b{font-weight:600}
+
+  .stats{
+    margin-top:clamp(24px,4vw,44px);
+    padding:13px 0;
+    border-top:var(--rule);
+    border-bottom:var(--rule);
+    display:flex;
+    flex-wrap:wrap;
+    gap:5px 26px;
+    font-family:"Space Mono",ui-monospace,monospace;
+    font-size:clamp(10px,2.3vw,11.5px);
+    letter-spacing:.13em;
+    text-transform:uppercase;
+  }
+  .stats b{font-weight:700}
+  #tally{
+    margin-left:auto;
+    color:var(--ink-rust);
+    font-variant-numeric:tabular-nums;
+    font-weight:700;
+  }
+
+  /* ══════════════════════════════════════════
+     INDEX
+     ══════════════════════════════════════════ */
+  .index{padding:clamp(22px,3.4vw,40px) 0 clamp(36px,7vw,88px)}
+
+  .index h2{
+    font-family:"Space Mono",ui-monospace,monospace;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    margin:0 0 12px;
+  }
+  .index ol{
+    list-style:none;
+    margin:0;
+    padding:0;
+    columns:3;
+    column-gap:clamp(18px,3vw,44px);
+  }
+  .index li{break-inside:avoid}
+  .index a{
+    display:flex;
+    gap:10px;
+    align-items:baseline;
+    text-decoration:none;
+    padding:7px 0;
+    border-bottom:1px solid rgba(23,22,26,.16);
+    transition:color 150ms var(--ease),padding-left 200ms var(--ease-out);
+  }
+  .index .n{
+    font-family:"Space Mono",ui-monospace,monospace;
+    font-size:10.5px;
+    opacity:.5;
+    flex:none;
+    width:2ch;
+    font-variant-numeric:tabular-nums;
+  }
+  .index .t{font-size:13.5px;line-height:1.25;font-weight:500}
+  .index .dot{
+    flex:none;
+    margin-left:auto;
+    width:8px;height:8px;
+    border-radius:50%;
+    background:var(--c);
+    transform:translateY(-1px);
+  }
+  .index a:active{color:var(--c)}
+  @media (hover:hover) and (pointer:fine){
+    .index a:hover{color:var(--c);padding-left:7px}
+  }
+
+  /* ══════════════════════════════════════════
+     REEL BANDS
+     ══════════════════════════════════════════ */
+  .reel{--c:var(--ink-blue)}
+
+  .band{
+    background:var(--c);
+    color:var(--paper);
+    position:sticky;
+    top:0;
+    z-index:5;
+  }
+  .band .wrap{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:baseline;
+    gap:3px 16px;
+    padding-top:11px;
+    padding-bottom:11px;
+  }
+  .band .roman{
+    font-family:"Space Mono",ui-monospace,monospace;
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:.2em;
+    opacity:.62;
+    text-transform:uppercase;
+  }
+  .band h2{
+    font-family:"Syne",sans-serif;
+    font-weight:800;
+    text-transform:uppercase;
+    font-size:clamp(18px,2.6vw,27px);
+    letter-spacing:-.02em;
+    line-height:1;
+    margin:0;
+  }
+  .band .wks{
+    font-family:"Space Mono",ui-monospace,monospace;
+    font-size:10px;
+    letter-spacing:.16em;
+    margin-left:auto;
+    opacity:.62;
+    text-transform:uppercase;
+  }
+  .band-note{background:var(--c);color:var(--paper)}
+  .band-note .wrap{padding-top:0;padding-bottom:16px}
+  .band-note p{
+    margin:0;
+    max-width:62ch;
+    opacity:.82;
+    font-size:clamp(13.5px,1.5vw,15px);
+  }
+
+  /* ══════════════════════════════════════════
+     FILM CARD
+     ══════════════════════════════════════════ */
+  .films{padding:clamp(24px,4vw,46px) 0 clamp(40px,7vw,86px)}
+
+  .film{
+    display:grid;
+    grid-template-columns:clamp(120px,15vw,186px) 1fr;
+    grid-template-areas:"poster head" "poster body";
+    align-content:start;
+    gap:clamp(9px,1.2vw,16px) clamp(14px,2.6vw,40px);
+    padding:clamp(20px,3vw,36px) 0;
+    border-top:var(--rule);
+  }
+
+  /* scroll reveal */
+  .film{
+    opacity:0;
+    transform:translateY(16px);
+    transition:opacity 460ms var(--ease-out),transform 460ms var(--ease-out);
+  }
+  .film.is-in{opacity:1;transform:none}
+  .film:nth-child(2){transition-delay:50ms}
+  .film:nth-child(3){transition-delay:100ms}
+  .film:nth-child(4){transition-delay:140ms}
+  .film:nth-child(5){transition-delay:175ms}
+
+  /* ── poster ── */
+  .poster{
+    grid-area:poster;
+    align-self:start;
+    position:relative;
+    aspect-ratio:2/3;
+    background:var(--c);
+    color:var(--paper);
+    overflow:hidden;
+    padding:clamp(8px,1.2vw,15px);
+    display:flex;
+    flex-direction:column;
+    box-shadow:0 1px 0 rgba(23,22,26,.35);
+    /* Reveal: wipes up from the bottom edge as it enters */
+    clip-path:inset(0 0 100% 0);
+    transition:
+      clip-path 620ms var(--ease-out) 90ms,
+      transform 220ms var(--ease-out),
+      box-shadow 220ms var(--ease-out),
+      opacity 240ms var(--ease);
+  }
+  .film.is-in .poster{clip-path:inset(0 0 0 0)}
+
+  .poster img{
+    position:absolute;inset:0;
+    width:100%;height:100%;
+    object-fit:cover;
+    z-index:2;
+  }
+  .poster:active{transform:scale(.985)}
+  @media (hover:hover) and (pointer:fine){
+    .film:not(.done) .poster:hover{
+      transform:translateY(-3px);
+      box-shadow:0 8px 0 -2px rgba(23,22,26,.28);
+    }
+  }
+
+  /* halftone dots */
+  .poster::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    z-index:3;
+    pointer-events:none;
+    opacity:.22;
+    background-image:radial-gradient(rgba(228,226,214,.9) .7px,transparent .8px);
+    background-size:4px 4px;
+    mix-blend-mode:overlay;
+  }
+  .poster__ghost{
+    position:absolute;
+    right:-.09em;
+    bottom:-.34em;
+    font-family:"Syne",sans-serif;
+    font-weight:800;
+    font-size:clamp(70px,11vw,146px);
+    line-height:.7;
+    color:var(--paper);
+    opacity:.13;
+    letter-spacing:-.05em;
+    z-index:0;
+    font-variant-numeric:tabular-nums;
+  }
+  .poster__title{
+    position:relative;
+    z-index:1;
+    font-family:"Syne",sans-serif;
+    font-weight:800;
+    text-transform:uppercase;
+    line-height:.86;
+    letter-spacing:-.025em;
+    overflow-wrap:normal;
+    word-break:normal;
+    hyphens:none;
+  }
+  .poster[data-size="lg"] .poster__title{font-size:clamp(15px,2.35vw,29px)}
+  .poster[data-size="md"] .poster__title{font-size:clamp(13px,1.9vw,23px)}
+  .poster[data-size="sm"] .poster__title{font-size:clamp(10.5px,1.5vw,18px)}
+  .poster__foot{
+    position:relative;
+    z-index:1;
+    margin-top:auto;
+    padding-top:7px;
+    border-top:1px solid currentColor;
+    font-family:"Space Mono",ui-monospace,monospace;
+    font-size:clamp(8px,1vw,9px);
+    letter-spacing:.12em;
+    display:flex;
+    justify-content:space-between;
+    gap:5px;
+    opacity:.9;
+  }
+  /* "seen" stamp — scale in, never from scale(0) */
+  .poster__stamp{
+    position:absolute;
+    z-index:4;
+    left:8%;
+    top:38%;
+    padding:4px 9px 5px;
+    border:2px solid var(--paper);
+    font-family:"Space Mono",ui-monospace,monospace;
+    font-size:clamp(9px,1.15vw,12px);
+    font-weight:700;
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    background:rgba(23,22,26,.32);
+    opacity:0;
+    transform:scale(.9) rotate(-6deg);
+    transition:opacity 200ms var(--ease-out),transform 200ms var(--ease-out);
+  }
+  .film.done .poster__stamp{opacity:1;transform:scale(1) rotate(-6deg)}
+
+  /* ── head ── */
+  .film__head{grid-area:head;align-self:start;min-width:0}
+
+  .film__meta{
+    font-family:"Space Mono",ui-monospace,monospace;
+    font-size:clamp(9.5px,2.2vw,10.5px);
+    letter-spacing:.15em;
+    text-transform:uppercase;
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:4px 13px;
+    margin-bottom:9px;
+  }
+  .film__meta .wk{color:var(--c);font-weight:700;font-variant-numeric:tabular-nums}
+  .film__meta .date{opacity:.6}
+  .film__meta .tag{
+    background:var(--c);
+    color:var(--paper);
+    padding:2px 7px 3px;
+    font-weight:700;
+    letter-spacing:.14em;
+  }
+
+  .film__title{
+    font-family:"Syne",sans-serif;
+    font-weight:700;
+    font-size:clamp(24px,4.1vw,49px);
+    line-height:.94;
+    letter-spacing:-.03em;
+    margin:0;
+    text-wrap:balance;
+    /* strike crossfades in when marked watched */
+    text-decoration-line:line-through;
+    text-decoration-color:transparent;
+    text-decoration-thickness:3px;
+    text-underline-offset:0;
+    transition:text-decoration-color 260ms var(--ease-out);
+  }
+  .film.done .film__title{text-decoration-color:var(--c)}
+  .film__title .yr{
+    display:inline-block;
+    font-family:"Space Mono",ui-monospace,monospace;
+    font-weight:400;
+    font-size:.36em;
+    letter-spacing:0;
+    opacity:.45;
+    margin-left:.5em;
+    vertical-align:.4em;
+    white-space:nowrap;
+    text-decoration:none;
+  }
+  .film__credit{
+    margin:9px 0 0;
+    font-size:clamp(13px,1.4vw,13.5px);
+    font-style:italic;
+    opacity:.66;
+  }
+
+  /* ── body ── */
+  .film__body{grid-area:body;margin-top:0;max-width:60ch;min-width:0}
+  .film__body p{margin:0;font-size:clamp(14.5px,1.6vw,16px)}
+  .film__body .why{
+    margin-top:11px;
+    padding-left:14px;
+    border-left:3px solid var(--c);
+    font-size:clamp(13.5px,1.5vw,14.5px);
+  }
+  .film__body .why b{
+    font-family:"Space Mono",ui-monospace,monospace;
+    font-size:9.5px;
+    font-weight:700;
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    display:block;
+    color:var(--c);
+    margin-bottom:3px;
+  }
+
+  .film.done .poster,
+  .film.done .film__head,
+  .film.done .film__body p{opacity:.42}
+  .film__head,.film__body p{transition:opacity 240ms var(--ease)}
+
+  /* ── mark watched ── */
+  .mark{
+    margin-top:16px;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    min-height:44px;
+    background:none;
+    border:1.5px solid rgba(23,22,26,.35);
+    border-radius:0;
+    color:inherit;
+    font-family:"Space Mono",ui-monospace,monospace;
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    padding:0 15px;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+    transition:transform 150ms var(--ease-out),
+               background-color 160ms var(--ease),
+               color 160ms var(--ease),
+               border-color 160ms var(--ease);
+  }
+  .mark:active{transform:scale(.97)}
+  .mark .box{
+    width:10px;height:10px;
+    border:1.5px solid currentColor;
+    flex:none;
+    position:relative;
+    overflow:hidden;
+  }
+  /* the fill wipes in from the left */
+  .mark .box::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:currentColor;
+    transform:scaleX(0);
+    transform-origin:left center;
+    transition:transform 180ms var(--ease-out);
+  }
+  @media (hover:hover) and (pointer:fine){
+    .mark:hover{border-color:var(--c);color:var(--c)}
+  }
+  .film.done .mark{background:var(--c);border-color:var(--c);color:var(--paper)}
+  .film.done .mark .box::after{transform:scaleX(1)}
+
+  /* ══════════════════════════════════════════
+     COLOPHON
+     ══════════════════════════════════════════ */
+  .colophon{
+    background:var(--soot);
+    color:var(--paper);
+    padding:clamp(36px,6vw,72px) 0 clamp(30px,5vw,56px);
+    margin-top:clamp(18px,3vw,40px);
+  }
+  .colophon h2{
+    font-family:"Syne",sans-serif;
+    font-weight:800;
+    text-transform:uppercase;
+    font-size:clamp(20px,3vw,32px);
+    letter-spacing:-.02em;
+    margin:0 0 22px;
+  }
+  .notes{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+    gap:clamp(20px,3vw,44px);
+  }
+  .note h3{
+    font-family:"Space Mono",ui-monospace,monospace;
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    color:var(--ink-pink);
+    margin:0 0 8px;
+    padding-bottom:8px;
+    border-bottom:1px solid rgba(228,226,214,.25);
+  }
+  .note p{margin:0;font-size:14px;opacity:.78;line-height:1.5}
+  .note code{
+    font-family:"Space Mono",ui-monospace,monospace;
+    font-size:12px;
+    background:rgba(228,226,214,.12);
+    padding:1px 5px;
+    word-break:break-word;
+  }
+  .sign{
+    margin-top:clamp(26px,4vw,52px);
+    padding-top:16px;
+    border-top:1px solid rgba(228,226,214,.25);
+    font-family:"Space Mono",ui-monospace,monospace;
+    font-size:10px;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    opacity:.45;
+    display:flex;
+    flex-wrap:wrap;
+    gap:5px 20px;
+  }
+  .sign .end{margin-left:auto}
+
+  :target{scroll-margin-top:calc(var(--band-h) + 12px)}
+
+  /* ══════════════════════════════════════════
+     LAPTOP  ≤ 1180
+     ══════════════════════════════════════════ */
+  @media (max-width:1180px){
+    .film{grid-template-columns:clamp(126px,16vw,168px) 1fr}
+  }
+
+  /* ══════════════════════════════════════════
+     TABLET  ≤ 900
+     ══════════════════════════════════════════ */
+  @media (max-width:900px){
+    :root{--band-h:44px}
+    .index ol{columns:2}
+    .film{
+      grid-template-columns:132px 1fr;
+      gap:12px 24px;
+    }
+    .film__title{font-size:clamp(28px,4.6vw,38px)}
+    .film__body{max-width:64ch}
+  }
+
+  /* ══════════════════════════════════════════
+     PHONE  ≤ 620
+     ══════════════════════════════════════════ */
+  @media (max-width:620px){
+    :root{--band-h:42px}
+
+    .eyebrow .end{margin-left:0}
+
+    .masthead h1{max-width:none;line-height:.88}
+
+    .stats{gap:5px 18px}
+    #tally{
+      margin-left:0;
+      width:100%;
+      padding-top:5px;
+      margin-top:3px;
+      border-top:1px dashed rgba(23,22,26,.25);
+    }
+
+    .index ol{columns:2;column-gap:16px}
+    .index .t{font-size:12.5px}
+    .index .dot{width:7px;height:7px}
+
+    .band .wks{display:none}
+
+    /* poster + meta side by side, title and prose full width beneath */
+    .film{
+      grid-template-columns:104px 1fr;
+      grid-template-areas:"poster head" "body body";
+      gap:13px 15px;
+      padding:22px 0;
+    }
+    .film__title{font-size:clamp(23px,6.6vw,31px);line-height:.98}
+    .film__credit{margin-top:7px}
+    .film__body{max-width:none}
+    .film__meta{gap:3px 10px;margin-bottom:7px}
+
+    .mark{width:100%;justify-content:center;margin-top:18px}
+
+    .notes{gap:26px}
+  }
+
+  /* ══════════════════════════════════════════
+     SMALL PHONE  ≤ 400
+     ══════════════════════════════════════════ */
+  @media (max-width:400px){
+    .film{grid-template-columns:92px 1fr;gap:11px 13px}
+    .poster{padding:7px}
+    .poster__foot{font-size:7.5px;letter-spacing:.08em}
+    .masthead h1{font-size:clamp(40px,13vw,52px)}
+  }
+
+  @media (max-width:340px){
+    .index ol{columns:1}
+    .film{grid-template-columns:84px 1fr}
+  }
+
+  /* ══════════════════════════════════════════
+     REDUCED MOTION — fewer and gentler, not zero
+     ══════════════════════════════════════════ */
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    .lift{animation:none;opacity:1}
+    .film{transform:none;transition:opacity 240ms var(--ease)}
+    .film.is-in{transform:none}
+    .poster{
+      clip-path:none;
+      transition:opacity 240ms var(--ease),box-shadow 200ms var(--ease);
+    }
+    .film.is-in .poster{clip-path:none}
+    .poster:active,.mark:active{transform:none}
+    .poster__stamp{transform:rotate(-6deg);transition:opacity 200ms var(--ease)}
+    .film.done .poster__stamp{transform:rotate(-6deg)}
+    .index a{transition:color 150ms var(--ease)}
+    @media (hover:hover){
+      .film:not(.done) .poster:hover{transform:none}
+      .index a:hover{padding-left:0}
+    }
+  }
+
+  /* ══════════════════════════════════════════
+     PRINT
+     ══════════════════════════════════════════ */
+  @media print{
+    body::before{display:none}
+    .band{position:static}
+    .mark{display:none}
+    .lift{animation:none;opacity:1}
+    .film{opacity:1;transform:none;break-inside:avoid;page-break-inside:avoid}
+    .poster{clip-path:none}
+    .colophon{background:none;color:var(--soot)}
+    .note h3{color:var(--soot)}
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow lift d1">
+      <span>A Screening Programme</span>
+      <span>No. 01</span>
+      <span class="end">Aug — Dec 2026</span>
+    </div>
+
+    <h1>
+      <span class="lift d2">Twenty-One</span>
+      <span class="b lift d3">Saturdays</span>
+    </h1>
+
+    <p class="standfirst lift d4">
+      Every Saturday left in the year has a film attached to it. Twenty-one of them, arranged
+      in five programmes that build on each other — <b>start with the tricks, end with the reckoning</b>.
+      No filler, no half-measures. Watch in order if you can.
+    </p>
+
+    <div class="stats lift d5">
+      <span><b>21</b> films</span>
+      <span><b>5</b> programmes</span>
+      <span><b>1971</b>—<b>2019</b></span>
+      <span><b>44h 34m</b> total</span>
+      <span id="tally">0 / 21 watched</span>
+    </div>
+  </div>
+</header>
+
+<nav class="index lift d6" aria-label="Programme index">
+  <div class="wrap">
+    <h2>Contents</h2>
+    <ol id="index"></ol>
+  </div>
+</nav>
+
+<main id="reels"></main>
+
+<footer class="colophon">
+  <div class="wrap">
+    <h2>Notes &amp; Substitutions</h2>
+    <div class="notes">
+      <div class="note">
+        <h3>Week 06 — you may have seen it</h3>
+        <p>Your Netflix history lists a title called simply <em>Seven</em>, which is how <em>Se7en</em>
+        is often catalogued in India. If it's the same film, swap in <strong>Zodiac</strong> (2007, Fincher)
+        — a slower, colder obsession with a case that never closes.</p>
+      </div>
+      <div class="note">
+        <h3>On the posters</h3>
+        <p>These are set, not scanned — official artwork is licensed, so each panel is printed here
+        as a two-colour riso plate instead. To drop in real posters, open this file, find the
+        <code>posters</code> object in the script and add
+        <code>"Memento": "https://…jpg"</code>. Any film with a URL will use the image; the rest
+        stay as prints.</p>
+      </div>
+      <div class="note">
+        <h3>Marking things off</h3>
+        <p>Tap <em>Mark watched</em> to stamp a film and update the tally at the top. It resets when
+        the page reloads — this is a programme, not a database. Print it if you want it permanent.</p>
+      </div>
+    </div>
+    <div class="sign">
+      <span>Set in Syne, Familjen Grotesk &amp; Space Mono</span>
+      <span>Five plates: blue · rust · plum · teal · oxblood</span>
+      <span class="end">Aug 8 — Dec 26, 2026</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  /* Add real poster URLs here — the key must match the film title exactly. */
+  var posters = {
+    // "Memento": "https://example.com/memento.jpg",
+  };
+
+  var REELS = [
+    {
+      roman:"I", name:"Sleight of Hand", ink:"var(--ink-blue)",
+      note:"Five films that lie to you on purpose. Structure is the weapon here — what you're told, when you're told it, and what it costs you to find out.",
+      films:[
+        { t:"Memento", yr:2000, dir:"Christopher Nolan", cty:"USA", run:113, size:"lg",
+          hook:"A man with no short-term memory hunts his wife's killer, tattooing evidence onto his own body. The film runs backwards — you learn what he knows, exactly when he knows it.",
+          why:"You said Fight Club. This is the other great structural con of that era, except the structure <em>is</em> the story rather than the reveal at the end." },
+        { t:"Oldboy", yr:2003, dir:"Park Chan-wook", cty:"South Korea", run:120, size:"lg",
+          hook:"Locked in a room for fifteen years without explanation. Released without explanation. He has five days to find out why.",
+          why:"You said go as dark as possible. This is the ceiling — an ending so cruel it reframes everything behind it. Korean cinema, which you already read fluently." },
+        { t:"The Prestige", yr:2006, dir:"Christopher Nolan", cty:"UK / USA", run:130, size:"md",
+          hook:"Two Victorian magicians ruin each other over a single trick, each convinced the other is hiding a method.",
+          why:"Obsession as self-destruction — the same engine as The Social Network, but with an actual body count." },
+        { t:"Mulholland Drive", yr:2001, dir:"David Lynch", cty:"USA / France", run:147, size:"md",
+          hook:"An amnesiac woman and an aspiring actress in Los Angeles. Roughly two-thirds in, the film stops obeying its own rules.",
+          why:"You asked for weird. Don't try to solve it on the first pass — let it work on you and read about it after." },
+        { t:"Perfect Blue", yr:1997, dir:"Satoshi Kon", cty:"Japan", run:81, size:"lg",
+          hook:"A pop idol turns actress and starts losing the thread between her performance, her stalker, and herself.",
+          why:"Eighty-one minutes, animated, and nastier than most live-action thrillers. Aronofsky has been borrowing from it for twenty years." }
+      ]
+    },
+    {
+      roman:"II", name:"Moral Rot", ink:"var(--ink-rust)",
+      note:"Crime films that refuse to let you enjoy the crime. Each one starts as a genre picture and ends somewhere colder.",
+      films:[
+        { t:"Se7en", yr:1995, dir:"David Fincher", cty:"USA", run:127, size:"lg",
+          hook:"Two detectives, seven murders staged around the deadly sins, a city where it never stops raining.",
+          why:"The canonical dark thriller ending — the one every film since has tried to earn. See the substitution note if you've already watched it." },
+        { t:"Pulp Fiction", yr:1994, dir:"Quentin Tarantino", cty:"USA", run:154, size:"lg",
+          hook:"Hitmen, a boxer, a briefcase, a diner robbery — told out of order and stitched into a loop.",
+          why:"The most quoted film on this list, and the reason dialogue-first crime cinema exists. Go in cold; the hype is deserved." },
+        { t:"Goodfellas", yr:1990, dir:"Martin Scorsese", cty:"USA", run:145, size:"lg",
+          hook:"Thirty years inside the mob, narrated by a man who loved every minute until he didn't.",
+          why:"You've done The Godfather. This is the anti-Godfather — no opera, no honour, just appetite and paranoia." },
+        { t:"No Country for Old Men", yr:2007, dir:"Joel &amp; Ethan Coen", cty:"USA", run:122, size:"sm",
+          hook:"A welder finds two million dollars in the Texas desert. A man with a captive bolt pistol comes to collect it.",
+          why:"Almost no score, enormous silences, and an ending that walks away mid-thought. Cinema's flattest, scariest villain." },
+        { t:"City of God", yr:2002, dir:"Fernando Meirelles", cty:"Brazil", run:130, size:"lg",
+          hook:"Two decades in the favelas of Rio, told through a boy with a camera and the boy who becomes a warlord.",
+          why:"Violent, propulsive, and full of real feeling for the people inside it. My bet for your favourite in this block." }
+      ]
+    },
+    {
+      roman:"III", name:"The Descent", ink:"var(--ink-plum)",
+      note:"No twists in this programme. Just people being slowly taken apart by something they wanted very badly.",
+      films:[
+        { t:"Taxi Driver", yr:1976, dir:"Martin Scorsese", cty:"USA", run:114, size:"md",
+          hook:"An insomniac cab driver works nights in a New York he's convinced is filth, and decides someone should do something.",
+          why:"The original alienated-man-in-a-rotting-city film. Fight Club owes it nearly everything, including the narrator you shouldn't trust." },
+        { t:"There Will Be Blood", yr:2007, dir:"Paul Thomas Anderson", cty:"USA", run:158, size:"sm",
+          hook:"An oil prospector builds an empire in California and hollows out everything human in himself to do it.",
+          why:"Your slow-burn week. Fifteen minutes without dialogue to open, and a final scene people still argue about." },
+        { t:"Requiem for a Dream", yr:2000, dir:"Darren Aronofsky", cty:"USA", run:102, size:"md", tag:"Halloween",
+          hook:"Four people, four addictions, one summer, and a last twenty minutes that arrive like a car crash.",
+          why:"Genuinely the bleakest thing here. Watch it once. You won't want a second pass, and that's the point." },
+        { t:"One Flew Over the Cuckoo's Nest", yr:1975, dir:"Miloš Forman", cty:"USA", run:133, size:"sm",
+          hook:"A convict fakes insanity to serve his sentence somewhere easier, and finds an institution far better at breaking people.",
+          why:"Shawshank's direct ancestor — same fight for dignity inside a system, entirely different verdict." },
+        { t:"Whiplash", yr:2014, dir:"Damien Chazelle", cty:"USA", run:106, size:"lg",
+          hook:"A jazz drummer and the conservatory teacher who will destroy him to make him great.",
+          why:"The tightest, fastest film on this list — cut like a thriller. The last nine minutes are the whole argument." }
+      ]
+    },
+    {
+      roman:"IV", name:"Strange Weather", ink:"var(--ink-teal)",
+      note:"Three films that bend the world rather than the plot. Watch these late, with the lights off and the phone in another room.",
+      films:[
+        { t:"Blade Runner", yr:1982, dir:"Ridley Scott", cty:"USA", run:117, size:"lg",
+          hook:"A detective hunts four artificial humans through a rain-soaked, neon Los Angeles that never sees daylight.",
+          why:"Take the Final Cut. It's slow on purpose — the mood is the film, and the closing monologue is worth the wait." },
+        { t:"A Clockwork Orange", yr:1971, dir:"Stanley Kubrick", cty:"UK / USA", run:136, size:"lg",
+          hook:"A gleeful young thug is caught, then cured of violence by a state that finds the cure more useful than the man.",
+          why:"Kubrick at his most deliberately unpleasant. Uncomfortable by design, and the discomfort is the argument." },
+        { t:"Eternal Sunshine of the Spotless Mind", yr:2004, dir:"Michel Gondry", cty:"USA", run:108, size:"sm",
+          hook:"A couple pay to have each other erased from memory. He changes his mind partway through the procedure, from inside it.",
+          why:"The one that will actually hurt. Same wavelength as the Korean dramas you binged — When Life Gives You Tangerines, My Mister." }
+      ]
+    },
+    {
+      roman:"V", name:"The Reckoning", ink:"var(--ink-ox)",
+      note:"Three big ones to close the year. Each is a film about a system rather than a person, and each is best seen on the largest screen you have.",
+      films:[
+        { t:"The Dark Knight", yr:2008, dir:"Christopher Nolan", cty:"USA / UK", run:152, size:"md",
+          hook:"An agent of chaos tests whether a city, a vigilante and a district attorney will hold their line under pressure.",
+          why:"The rare blockbuster that's a genuine moral thriller. Ledger is the reason, but the ferry sequence is the thesis." },
+        { t:"Apocalypse Now", yr:1979, dir:"Francis Ford Coppola", cty:"USA", run:147, size:"lg",
+          hook:"An officer travels upriver through the Vietnam War to assassinate a colonel who has stopped taking orders.",
+          why:"Theatrical cut or Redux, both work. Save it for a night with nothing after it — you'll want to sit in the dark afterwards." },
+        { t:"Parasite", yr:2019, dir:"Bong Joon-ho", cty:"South Korea", run:132, size:"lg",
+          hook:"A family living in a semi-basement talk their way, one by one, into the household of a family living on a hill.",
+          why:"Deliberately last. It's comedy, then thriller, then something else entirely — and it ties the whole year together." }
+      ]
+    }
+  ];
+
+  /* ── Saturdays, Aug 8 → Dec 26, 2026 ── */
+  var MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  function saturday(i){
+    var d = new Date(2026, 7, 8);
+    d.setDate(d.getDate() + i * 7);
+    return "Sat " + MONTHS[d.getMonth()] + " " + d.getDate();
+  }
+
+  var esc  = function(s){ return String(s).replace(/&(?![a-z]+;)/g,"&amp;").replace(/</g,"&lt;"); };
+  var pad  = function(n){ return n < 10 ? "0" + n : "" + n; };
+  var slug = function(s){ return s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""); };
+
+  var indexEl = document.getElementById("index");
+  var reelsEl = document.getElementById("reels");
+  var week = 0, idxHTML = "", reelHTML = "";
+
+  REELS.forEach(function(reel){
+    var first = week + 1, last = week + reel.films.length;
+    var body = "";
+
+    reel.films.forEach(function(f){
+      week++;
+      var id = slug(f.t), sat = saturday(week - 1), src = posters[f.t];
+
+      idxHTML +=
+        '<li><a href="#' + id + '" style="--c:' + reel.ink + '">' +
+          '<span class="n">' + pad(week) + '</span>' +
+          '<span class="t">' + esc(f.t) + '</span>' +
+          '<span class="dot"></span>' +
+        '</a></li>';
+
+      body +=
+        '<article class="film" id="' + id + '" style="--c:' + reel.ink + '">' +
+          '<div class="poster" data-size="' + f.size + '">' +
+            (src ? '<img src="' + src + '" alt="' + esc(f.t) + ' poster" loading="lazy">' : "") +
+            '<span class="poster__ghost" aria-hidden="true">' + pad(week) + '</span>' +
+            '<span class="poster__title">' + esc(f.t) + '</span>' +
+            '<span class="poster__foot"><span>' + f.yr + '</span><span>' + f.run + '&prime;</span></span>' +
+            '<span class="poster__stamp" aria-hidden="true">Seen</span>' +
+          '</div>' +
+          '<div class="film__head">' +
+            '<div class="film__meta">' +
+              '<span class="wk">Week ' + pad(week) + '</span>' +
+              '<span class="date">' + sat + '</span>' +
+              (f.tag ? '<span class="tag">' + f.tag + '</span>' : "") +
+              '<span>' + f.cty + '</span>' +
+              '<span>' + f.run + ' min</span>' +
+            '</div>' +
+            '<h3 class="film__title">' + esc(f.t) + '<span class="yr">' + f.yr + '</span></h3>' +
+            '<p class="film__credit">Directed by ' + f.dir + '</p>' +
+          '</div>' +
+          '<div class="film__body">' +
+            '<p>' + f.hook + '</p>' +
+            '<p class="why"><b>Why it\u2019s here</b>' + f.why + '</p>' +
+            '<button class="mark" type="button" aria-pressed="false">' +
+              '<span class="box" aria-hidden="true"></span><span class="lbl">Mark watched</span>' +
+            '</button>' +
+          '</div>' +
+        '</article>';
+    });
+
+    reelHTML +=
+      '<section class="reel" style="--c:' + reel.ink + '" aria-labelledby="reel-' + reel.roman + '">' +
+        '<div class="band"><div class="wrap">' +
+          '<span class="roman">Programme ' + reel.roman + '</span>' +
+          '<h2 id="reel-' + reel.roman + '">' + esc(reel.name) + '</h2>' +
+          '<span class="wks">Weeks ' + pad(first) + '\u2013' + pad(last) + '</span>' +
+        '</div></div>' +
+        '<div class="band-note"><div class="wrap"><p>' + reel.note + '</p></div></div>' +
+        '<div class="films"><div class="wrap">' + body + '</div></div>' +
+      '</section>';
+  });
+
+  indexEl.innerHTML = idxHTML;
+  reelsEl.innerHTML = reelHTML;
+
+  /* ── fit poster type to the plate ──
+     Long single words (GOODFELLAS, APOCALYPSE) overrun the plate at some
+     widths, and Syne is wider than the fallback face — so measure and shrink
+     rather than guessing fixed sizes. Binary search keeps it to ~8 reflows. */
+  var titles = reelsEl.querySelectorAll(".poster__title");
+
+  function fitTitles(){
+    Array.prototype.forEach.call(titles, function(el){
+      el.style.fontSize = "";
+      if(el.scrollWidth <= el.clientWidth + 0.5) return;
+
+      var hi = parseFloat(window.getComputedStyle(el).fontSize) || 18,
+          lo = 7, best = lo, mid, i;
+
+      for(i = 0; i < 8; i++){
+        mid = (lo + hi) / 2;
+        el.style.fontSize = mid + "px";
+        if(el.scrollWidth <= el.clientWidth + 0.5){ best = mid; lo = mid; }
+        else { hi = mid; }
+      }
+      el.style.fontSize = best.toFixed(2) + "px";
+    });
+  }
+
+  fitTitles();
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(fitTitles); }
+
+  var rt;
+  function onResize(){ clearTimeout(rt); rt = setTimeout(fitTitles, 150); }
+  window.addEventListener("resize", onResize);
+  window.addEventListener("orientationchange", onResize);
+
+  /* ── watched tally ── */
+  var tally = document.getElementById("tally"), total = week;
+  reelsEl.addEventListener("click", function(e){
+    var btn = e.target.closest && e.target.closest(".mark");
+    if(!btn) return;
+    var card = btn.closest(".film"), on = card.classList.toggle("done");
+    btn.setAttribute("aria-pressed", on ? "true" : "false");
+    btn.querySelector(".lbl").textContent = on ? "Watched" : "Mark watched";
+    tally.textContent = reelsEl.querySelectorAll(".film.done").length + " / " + total + " watched";
+  });
+
+  /* ── scroll reveal ── */
+  var cards = reelsEl.querySelectorAll(".film");
+  if(!("IntersectionObserver" in window)){
+    Array.prototype.forEach.call(cards, function(c){ c.classList.add("is-in"); });
+  } else {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){ en.target.classList.add("is-in"); io.unobserve(en.target); }
+      });
+    }, { rootMargin: "0px 0px -6% 0px", threshold: 0.04 });
+    Array.prototype.forEach.call(cards, function(c){ io.observe(c); });
+  }
+})();
+</script>
+</body>
+</html>
