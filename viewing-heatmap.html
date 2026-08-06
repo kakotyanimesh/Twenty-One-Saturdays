@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Viewing Heatmap · 2022–2026</title>
+<meta name="description" content="Every day of four and a half years of viewing history, plotted as heat." />
+<meta name="theme-color" content="#0C1018" />
+<meta name="color-scheme" content="dark" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230C1018'/%3E%3Crect x='5' y='5' width='6' height='6' fill='%232B3566'/%3E%3Crect x='13' y='5' width='6' height='6' fill='%23C4402F'/%3E%3Crect x='21' y='5' width='6' height='6' fill='%23F0912B'/%3E%3Crect x='5' y='13' width='6' height='6' fill='%237A2A6B'/%3E%3Crect x='13' y='13' width='6' height='6' fill='%23FFE3A8'/%3E%3Crect x='21' y='13' width='6' height='6' fill='%232B3566'/%3E%3Crect x='5' y='21' width='6' height='6' fill='%23182034'/%3E%3Crect x='13' y='21' width='6' height='6' fill='%232B3566'/%3E%3Crect x='21' y='21' width='6' height='6' fill='%23C4402F'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ════════ TOKENS ════════ */
+:root{
+  --void:#0C1018;
+  --panel:#131926;
+  --panel-2:#1A2233;
+  --line:rgba(255,255,255,.09);
+  --txt:#E8ECF4;
+  --mut:#8C97AC;
+  --dim:#5C677D;
+
+  /* black-body heat ramp: cold slate → indigo → plum → ember → amber → white hot */
+  --h0:#161D2B;
+  --h1:#2B3566;
+  --h2:#7A2A6B;
+  --h3:#C4402F;
+  --h4:#F0912B;
+  --h5:#FFE3A8;
+
+  --amber:#F0912B;
+
+  --ease-out:cubic-bezier(0.23,1,0.32,1);
+  --ease:cubic-bezier(0.4,0,0.2,1);
+
+  --pad:clamp(16px,3.6vw,52px);
+  --cell:13px;
+  --gap:2px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--void);color:var(--txt);
+  font-family:"Inter",ui-sans-serif,system-ui,-apple-system,sans-serif;
+  font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+h1,h2,h3{margin:0;font-family:"Space Grotesk",sans-serif;letter-spacing:-.02em}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+::selection{background:var(--amber);color:#0C1018}
+:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.wrap{max-width:1400px;margin:0 auto;padding:0 var(--pad)}
+
+/* ════════ HEADER ════════ */
+header{padding:clamp(32px,6vw,74px) 0 clamp(20px,3vw,32px)}
+.eyeb{
+  font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--amber);margin-bottom:14px;
+}
+h1{
+  font-size:clamp(34px,7vw,74px);font-weight:700;line-height:.94;letter-spacing:-.035em;
+}
+h1 em{font-style:normal;color:var(--dim)}
+header p{
+  margin:clamp(14px,2vw,20px) 0 0;max-width:60ch;color:var(--mut);
+  font-size:clamp(14.5px,1.6vw,17px);
+}
+.facts{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(126px,1fr));
+  gap:1px;margin-top:clamp(22px,3.4vw,38px);
+  background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden;
+}
+.facts div{background:var(--void);padding:14px 16px;min-width:0}
+.facts .v{
+  font-family:"IBM Plex Mono",monospace;font-weight:600;font-variant-numeric:tabular-nums;
+  font-size:clamp(19px,2.6vw,28px);line-height:1.1;
+}
+.facts .k{margin-top:5px;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+
+/* ════════ FILTERS ════════ */
+.filters{padding:clamp(22px,3vw,34px) 0 clamp(12px,1.6vw,18px)}
+.filters .lbl{
+  font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--dim);margin-bottom:11px;
+}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+@media (max-width:760px){
+  .chips{
+    flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;
+    padding:2px var(--pad) 4px;margin:0 calc(var(--pad) * -1);
+    scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;
+  }
+  .chips::-webkit-scrollbar{display:none}
+  .chip{flex:none;scroll-snap-align:start}
+}
+.chip{
+  font-family:"IBM Plex Mono",monospace;font-size:11.5px;
+  background:var(--panel);color:var(--mut);border:1px solid var(--line);
+  padding:7px 11px;border-radius:100px;cursor:pointer;
+  min-height:34px;display:inline-flex;align-items:center;gap:6px;
+  -webkit-tap-highlight-color:transparent;white-space:nowrap;
+  transition:background-color 160ms var(--ease),color 160ms var(--ease),
+             border-color 160ms var(--ease),transform 140ms var(--ease-out);
+}
+.chip:active{transform:scale(.96)}
+.chip .c{color:var(--dim);font-size:10.5px}
+@media (hover:hover) and (pointer:fine){
+  .chip:hover{border-color:rgba(240,145,43,.5);color:var(--txt)}
+}
+.chip[aria-pressed="true"]{
+  background:var(--amber);color:#0C1018;border-color:var(--amber);font-weight:600;
+}
+.chip[aria-pressed="true"] .c{color:rgba(12,16,24,.6)}
+
+/* ════════ HEATMAP ════════ */
+.maps{padding-bottom:clamp(20px,3vw,34px)}
+.yr{
+  position:relative;margin-bottom:clamp(20px,2.6vw,32px);
+}
+.yr__head{
+  display:flex;align-items:baseline;gap:12px;margin-bottom:9px;
+}
+.yr__head .y{
+  font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:clamp(17px,2.2vw,24px);
+  letter-spacing:-.02em;
+}
+.yr__head .n{
+  font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--dim);
+  letter-spacing:.1em;margin-left:auto;
+}
+.swipe{
+  display:none;font-family:"IBM Plex Mono",monospace;font-size:10px;
+  color:var(--dim);letter-spacing:.16em;text-transform:uppercase;
+  padding:7px 0 0;
+}
+body.scrolls .swipe{display:block}
+.scroller{
+  overflow-x:auto;overflow-y:visible;scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+}
+.scroller::-webkit-scrollbar{display:none}
+.mon{
+  display:grid;grid-auto-flow:column;grid-auto-columns:var(--cell);
+  gap:var(--gap);width:max-content;
+  font-family:"IBM Plex Mono",monospace;font-size:9.5px;color:var(--dim);
+  height:14px;letter-spacing:.06em;
+}
+.mon span{position:relative;overflow:visible;white-space:nowrap}
+.grid{
+  display:grid;grid-auto-flow:column;
+  grid-template-rows:repeat(7,var(--cell));
+  grid-auto-columns:var(--cell);
+  gap:var(--gap);width:max-content;
+}
+.grid i{
+  display:block;border-radius:2px;background:var(--h0);
+  transition:background-color 300ms var(--ease),opacity 300ms var(--ease),transform 140ms var(--ease-out);
+}
+.grid i[data-l="1"]{background:var(--h1)}
+.grid i[data-l="2"]{background:var(--h2)}
+.grid i[data-l="3"]{background:var(--h3)}
+.grid i[data-l="4"]{background:var(--h4)}
+.grid i[data-l="5"]{background:var(--h5);box-shadow:0 0 9px rgba(255,227,168,.45)}
+.grid i.void{background:transparent}
+.grid i.mute{background:var(--h0)!important;box-shadow:none!important}
+.grid i.hit{transform:scale(1.5);position:relative;z-index:3;outline:1px solid rgba(255,255,255,.5)}
+
+/* readout */
+.read{
+  position:absolute;z-index:20;pointer-events:none;
+  background:var(--panel-2);border:1px solid rgba(255,255,255,.16);
+  border-radius:6px;padding:11px 13px;min-width:186px;max-width:280px;
+  box-shadow:0 14px 34px rgba(0,0,0,.6);
+  opacity:0;transform:translateY(4px) scale(.97);
+  transition:opacity 150ms var(--ease-out),transform 150ms var(--ease-out);
+}
+.read.on{opacity:1;transform:none}
+.read .d{
+  font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--amber);margin-bottom:7px;
+}
+.read ul{list-style:none;margin:0;padding:0}
+.read li{
+  display:flex;gap:10px;font-size:12.5px;line-height:1.4;padding:1.5px 0;
+}
+.read li b{margin-left:auto;font-family:"IBM Plex Mono",monospace;color:var(--mut);font-weight:500}
+.read .f{
+  margin-top:8px;padding-top:7px;border-top:1px solid var(--line);
+  font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--dim);letter-spacing:.08em;
+}
+
+.legend{
+  display:flex;align-items:center;gap:7px;padding:6px 0 0;
+  font-family:"IBM Plex Mono",monospace;font-size:10px;
+  color:var(--dim);letter-spacing:.12em;text-transform:uppercase;flex-wrap:wrap;
+}
+.legend i{width:12px;height:12px;border-radius:2px;display:block}
+.legend .sp{margin-left:auto}
+@media (max-width:620px){ .legend .sp{margin-left:0;width:100%} }
+
+/* ════════ PANELS ════════ */
+.two{
+  display:grid;gap:clamp(12px,1.6vw,20px);grid-template-columns:1fr 1fr;
+  padding-bottom:clamp(30px,4vw,56px);
+}
+@media (max-width:780px){ .two{grid-template-columns:1fr} }
+.card{background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:clamp(18px,2.4vw,28px)}
+.card h3{font-size:clamp(15px,1.8vw,19px);font-weight:600}
+.card .cap{font-size:12px;color:var(--dim);margin:5px 0 16px}
+.list{display:flex;flex-direction:column;gap:9px}
+.item{display:grid;grid-template-columns:46px 1fr;gap:12px;align-items:center}
+.item .n{
+  font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:19px;
+  font-variant-numeric:tabular-nums;color:var(--amber);text-align:right;
+}
+.item.cool .n{color:#5F7CC4}
+.item .b{min-width:0}
+.item .b .t{font-size:12.5px;color:var(--txt)}
+.item .b .s{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--dim);letter-spacing:.08em;margin-top:2px}
+
+footer{
+  padding:clamp(24px,3vw,40px) 0 clamp(40px,5vw,64px);
+  border-top:1px solid var(--line);color:var(--dim);font-size:12px;
+}
+footer p{margin:0 0 7px;max-width:70ch;line-height:1.6}
+
+@media (prefers-reduced-motion:reduce){
+  .grid i,.chip,.read{transition-property:background-color,opacity,color,border-color}
+  .chip:active{transform:none}
+  .grid i.hit{transform:none}
+  .read{transform:none}
+  .read.on{transform:none}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyeb">Netflix viewing history · 1,678 days</div>
+    <h1>Every day you<br>pressed play <em>— and didn't.</em></h1>
+    <p>
+      One square per day, 1 January 2022 to 5 August 2026. Colour runs cold to white-hot with
+      the number of titles you played. Hover or tap any square to see what was on.
+      Pick a show below to trace its footprint through the years.
+    </p>
+    <div class="facts">
+      <div><div class="v" id="fTotal">—</div><div class="k">Titles played</div></div>
+      <div><div class="v" id="fActive">—</div><div class="k">Days watched</div></div>
+      <div><div class="v" id="fDark">—</div><div class="k">Days dark</div></div>
+      <div><div class="v" id="fRate">—</div><div class="k">Of all days</div></div>
+      <div><div class="v" id="fShows">—</div><div class="k">Distinct titles</div></div>
+      <div><div class="v" id="fPeak">—</div><div class="k">Busiest single day</div></div>
+    </div>
+  </header>
+
+  <section class="filters">
+    <div class="lbl">Trace a show</div>
+    <div class="chips" id="chips"></div>
+  </section>
+
+  <section class="maps" id="maps"></section>
+  <div class="swipe">Swipe the calendars sideways to reach December →</div>
+
+  <div class="legend">
+    <span>Cold</span>
+    <i style="background:var(--h0)"></i><i style="background:var(--h1)"></i>
+    <i style="background:var(--h2)"></i><i style="background:var(--h3)"></i>
+    <i style="background:var(--h4)"></i><i style="background:var(--h5)"></i>
+    <span>White hot</span>
+    <span class="sp" id="scale">1 · 2 · 3–5 · 6–11 · 12+ titles in a day</span>
+  </div>
+
+  <div class="two" style="padding-top:clamp(24px,3.4vw,44px)">
+    <div class="card">
+      <h3>Longest runs</h3>
+      <div class="cap">Consecutive days with something played.</div>
+      <div class="list" id="streaks"></div>
+    </div>
+    <div class="card">
+      <h3>Longest silences</h3>
+      <div class="cap">Consecutive days with nothing at all.</div>
+      <div class="list" id="gaps"></div>
+    </div>
+  </div>
+
+  <footer>
+    <p>Built from a Netflix viewing-history export: 1,557 rows, 31 December 2021 to 5 August 2026. Netflix records a title and a date per play, not a duration, so any hour figures shown are estimates (45 min per drama episode, 21–32 min per sitcom episode, 125 min per film).</p>
+    <p>Episodes are grouped by their parent show, so one square can hold a whole season. Contains personal viewing data.</p>
+  </footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+var DATA = {"days":{"2021-12-31":[[[95,1]],125],"2022-01-01":[[[96,1]],125],"2022-01-02":[[[97,1]],125],"2022-01-04":[[[35,7],[98,1]],360],"2022-01-05":[[[45,6]],270],"2022-01-06":[[[47,6],[46,5],[58,3],[99,1],[100,1]],1309],"2022-01-07":[[[101,1],[102,1]],250],"2022-01-08":[[[103,1]],45],"2022-01-10":[[[36,2],[104,1]],215],"2022-01-11":[[[105,1],[106,1],[107,1],[108,1],[109,1]],448],"2022-01-12":[[[110,1],[111,1],[112,1]],375],"2022-01-13":[[[82,1]],45],"2022-01-14":[[[15,8]],360],"2022-01-15":[[[113,1]],125],"2022-01-17":[[[114,1],[115,1]],250],"2022-01-18":[[[116,1],[117,1],[118,1]],275],"2022-01-19":[[[119,1],[83,1],[120,1]],375],"2022-01-21":[[[73,2],[74,1],[121,1]],500],"2022-01-22":[[[59,5],[122,1],[123,1]],475],"2022-01-24":[[[65,1]],45],"2022-01-25":[[[124,1],[73,1],[125,1]],295],"2022-01-26":[[[75,1],[126,1],[127,1]],295],"2022-01-27":[[[37,1]],32],"2022-01-28":[[[36,5],[128,1]],350],"2022-01-29":[[[17,9]],405],"2022-01-30":[[[24,8],[129,1],[130,1]],1170],"2022-01-31":[[[38,7]],315],"2022-02-01":[[[131,1],[132,1],[133,1]],295],"2022-02-03":[[[9,3]],135],"2022-02-04":[[[9,4],[134,1]],305],"2022-02-05":[[[9,1]],45],"2022-02-07":[[[9,1]],45],"2022-02-13":[[[135,1],[84,1]],90],"2022-02-18":[[[136,1]],45],"2022-02-19":[[[137,1],[138,1],[139,1]],295],"2022-02-20":[[[140,1]],125],"2022-02-21":[[[141,1]],125],"2022-02-22":[[[142,1]],125],"2022-02-24":[[[143,1]],125],"2022-02-25":[[[25,4]],180],"2022-02-26":[[[25,4]],180],"2022-03-25":[[[144,1],[145,1]],250],"2022-03-29":[[[146,1]],125],"2022-04-01":[[[26,8],[147,1]],485],"2022-04-02":[[[148,1],[17,1],[149,1]],295],"2022-04-03":[[[150,1],[151,1]],250],"2022-04-04":[[[152,1]],125],"2022-04-05":[[[153,1]],125],"2022-04-07":[[[154,1]],125],"2022-04-09":[[[155,1],[156,1]],250],"2022-04-10":[[[157,1]],125],"2022-04-12":[[[158,1],[159,1],[66,1]],295],"2022-04-13":[[[66,1]],45],"2022-04-14":[[[66,1]],45],"2022-04-15":[[[67,2]],90],"2022-04-17":[[[67,1]],45],"2022-04-19":[[[160,1],[66,1]],90],"2022-04-21":[[[8,4],[67,1]],225],"2022-04-22":[[[8,6]],270],"2022-08-02":[[[68,2],[4,2],[161,1],[162,1]],430],"2022-08-03":[[[4,5],[163,1],[68,1]],395],"2022-08-04":[[[4,6],[164,1]],395],"2022-08-06":[[[4,1],[82,1],[165,1]],215],"2022-08-10":[[[4,5]],225],"2022-08-11":[[[4,4]],180],"2022-08-12":[[[4,3]],135],"2022-08-13":[[[166,1],[167,1],[168,1]],375],"2022-08-16":[[[4,4],[169,1]],305],"2022-08-18":[[[4,4]],180],"2022-08-21":[[[4,2],[170,1],[171,1]],340],"2022-08-23":[[[172,1]],125],"2022-08-27":[[[18,5]],225],"2022-08-28":[[[173,1],[4,1]],170],"2022-08-31":[[[48,3]],135],"2022-09-02":[[[174,1],[48,1],[175,1]],295],"2022-09-06":[[[48,2]],90],"2022-09-09":[[[68,1]],125],"2022-09-10":[[[176,1],[177,1]],250],"2022-09-11":[[[178,1],[179,1]],250],"2022-09-12":[[[76,1]],45],"2022-09-14":[[[180,1]],125],"2022-09-16":[[[60,3],[181,1]],260],"2022-09-17":[[[60,2],[182,1],[76,1]],260],"2022-09-18":[[[183,1]],125],"2022-09-19":[[[184,1],[74,1]],250],"2022-09-22":[[[76,1]],45],"2022-09-28":[[[8,8],[185,1]],485],"2022-09-30":[[[186,1]],125],"2022-10-01":[[[187,1],[188,1],[189,1]],375],"2022-10-04":[[[4,2],[69,1]],215],"2022-10-05":[[[69,1]],125],"2022-10-06":[[[69,2]],250],"2022-10-07":[[[190,1]],125],"2022-10-08":[[[49,2]],90],"2022-10-09":[[[49,4]],420],"2022-10-10":[[[191,1]],125],"2022-10-11":[[[192,1],[193,1]],67],"2022-10-12":[[[194,1]],125],"2022-10-18":[[[195,1]],125],"2022-10-25":[[[58,1]],28],"2022-10-30":[[[196,1]],125],"2022-11-13":[[[197,1]],125],"2022-11-15":[[[17,1]],45],"2022-11-20":[[[198,1]],125],"2022-11-26":[[[27,2]],90],"2022-11-27":[[[27,5],[28,3]],600],"2022-11-28":[[[28,5],[199,1],[200,1]],875],"2022-12-01":[[[201,1]],125],"2023-09-06":[[[39,1]],45],"2023-09-07":[[[85,2],[202,1]],215],"2023-09-08":[[[50,1]],45],"2023-09-09":[[[203,1],[204,1],[205,1],[206,1]],500],"2023-09-10":[[[50,5],[207,1],[208,1]],475],"2023-09-11":[[[4,1],[209,1]],90],"2023-09-12":[[[210,1],[58,1],[211,1],[212,1]],403],"2023-09-13":[[[86,2],[213,1],[214,1],[215,1],[46,1],[216,1]],635],"2023-09-14":[[[61,2],[75,1]],375],"2023-09-15":[[[61,2],[217,1],[218,1]],420],"2023-09-16":[[[77,1]],45],"2023-09-17":[[[219,1]],125],"2023-09-18":[[[220,1],[221,1]],170],"2023-09-20":[[[222,1]],125],"2023-09-21":[[[77,2]],90],"2023-09-22":[[[21,10],[223,1]],575],"2023-09-23":[[[7,2],[224,1],[225,1]],340],"2023-09-24":[[[7,5]],225],"2023-09-25":[[[7,2],[4,1]],135],"2023-09-26":[[[7,7]],315],"2023-09-27":[[[7,4],[226,1],[227,1],[228,1]],555],"2023-09-28":[[[7,1]],45],"2023-09-29":[[[229,1]],45],"2023-10-07":[[[230,1]],125],"2023-10-08":[[[29,5],[231,1]],350],"2023-10-09":[[[7,3],[29,3]],270],"2023-10-10":[[[7,1]],45],"2023-10-21":[[[3,6]],270],"2023-10-22":[[[3,7]],315],"2023-10-23":[[[3,5]],225],"2023-10-24":[[[7,4],[232,1],[233,1]],430],"2023-10-25":[[[40,7],[234,1]],1000],"2023-10-26":[[[3,2]],90],"2023-10-27":[[[3,1]],45],"2023-10-28":[[[3,1]],45],"2023-10-29":[[[235,1],[3,1]],170],"2023-11-03":[[[78,3],[236,1],[3,1]],545],"2023-11-05":[[[237,1],[238,1]],250],"2024-04-13":[[[51,6]],270],"2024-04-14":[[[30,8],[239,1]],405],"2024-04-15":[[[52,6],[7,1],[240,1]],920],"2024-04-16":[[[3,6],[241,1]],315],"2024-04-17":[[[3,5],[242,1]],270],"2024-04-18":[[[3,2]],90],"2024-04-19":[[[243,1],[3,1]],170],"2024-04-21":[[[3,1]],45],"2024-04-22":[[[244,1]],125],"2024-04-23":[[[245,1]],45],"2024-04-25":[[[246,1]],125],"2024-04-26":[[[247,1]],125],"2024-05-01":[[[31,2]],90],"2024-05-02":[[[31,6]],270],"2024-05-04":[[[248,1],[249,1],[250,1],[251,1]],420],"2024-05-05":[[[252,1],[253,1],[254,1]],375],"2024-05-06":[[[255,1]],125],"2024-05-20":[[[32,8],[256,1]],1125],"2024-05-21":[[[257,1],[75,1],[258,1]],375],"2024-05-22":[[[259,1],[260,1],[261,1]],375],"2024-05-24":[[[70,2],[262,1],[263,1]],340],"2024-05-26":[[[264,1],[265,1],[266,1]],375],"2024-05-28":[[[16,8]],360],"2024-05-31":[[[87,1]],45],"2024-06-03":[[[267,1]],45],"2024-06-16":[[[268,1]],125],"2024-06-18":[[[3,2]],90],"2024-06-19":[[[3,4]],180],"2024-06-20":[[[37,6],[3,5]],417],"2024-06-21":[[[269,1],[270,1]],250],"2024-06-23":[[[6,7]],315],"2024-06-24":[[[271,1]],125],"2024-06-25":[[[6,2]],90],"2024-06-26":[[[6,5]],225],"2024-06-27":[[[6,6]],270],"2024-06-28":[[[272,1]],125],"2024-06-29":[[[273,1]],125],"2024-07-06":[[[1,3]],135],"2024-07-07":[[[1,3]],135],"2024-07-08":[[[1,3]],135],"2024-07-10":[[[274,1]],125],"2024-07-11":[[[1,1]],45],"2024-07-12":[[[1,4]],180],"2024-07-13":[[[1,7]],315],"2024-07-14":[[[1,4]],180],"2024-07-15":[[[1,3],[275,1]],260],"2024-07-16":[[[1,3]],135],"2024-07-17":[[[1,2]],90],"2024-07-18":[[[1,2]],90],"2024-07-19":[[[1,1]],45],"2024-07-21":[[[22,2]],250],"2024-07-22":[[[1,2]],90],"2024-07-23":[[[1,2]],90],"2024-07-24":[[[1,1]],45],"2024-07-25":[[[1,7]],315],"2024-07-26":[[[22,4],[276,1]],625],"2024-07-28":[[[70,2],[277,1]],215],"2024-08-02":[[[1,1]],45],"2024-08-05":[[[1,1]],45],"2024-08-06":[[[22,3]],375],"2024-08-07":[[[1,8]],360],"2024-08-08":[[[1,5]],225],"2024-08-09":[[[1,2]],90],"2024-09-01":[[[1,11],[278,1]],540],"2024-09-02":[[[1,1]],45],"2024-09-03":[[[1,2]],90],"2024-09-04":[[[1,2]],90],"2024-09-05":[[[1,5]],225],"2024-09-07":[[[53,6],[279,1]],395],"2024-09-08":[[[1,2]],90],"2024-09-09":[[[1,1]],45],"2024-09-13":[[[280,1],[1,1]],90],"2024-09-14":[[[1,2]],90],"2024-09-15":[[[1,3]],135],"2024-09-16":[[[1,2]],90],"2024-09-18":[[[1,1]],45],"2024-09-19":[[[1,1]],45],"2024-09-20":[[[1,5]],225],"2024-09-23":[[[1,12]],540],"2024-09-25":[[[1,1]],45],"2024-09-26":[[[281,1]],125],"2024-10-04":[[[282,1]],125],"2024-10-05":[[[283,1]],125],"2024-10-06":[[[284,1]],125],"2024-10-07":[[[2,15]],315],"2024-10-08":[[[2,3]],63],"2024-10-09":[[[2,9]],189],"2024-10-10":[[[2,18],[285,1]],503],"2024-10-11":[[[2,10],[88,1],[286,1]],380],"2024-10-12":[[[2,8]],168],"2024-10-13":[[[2,7]],147],"2024-10-14":[[[2,15]],315],"2024-10-15":[[[2,14]],294],"2024-10-16":[[[2,1]],21],"2024-10-17":[[[2,1]],21],"2024-10-18":[[[287,1]],125],"2024-10-20":[[[89,2],[88,1]],135],"2024-10-21":[[[288,1]],125],"2024-10-22":[[[289,1],[290,1]],250],"2024-10-24":[[[291,1]],125],"2024-10-28":[[[292,1],[61,1]],250],"2024-11-01":[[[16,6],[293,1]],395],"2024-11-02":[[[294,1]],125],"2024-11-04":[[[295,1],[296,1]],250],"2024-11-06":[[[297,1]],125],"2024-11-16":[[[298,1]],125],"2024-11-17":[[[90,1],[299,1],[300,1],[301,1]],340],"2024-11-19":[[[9,1],[90,1]],90],"2024-11-20":[[[9,2]],90],"2024-11-23":[[[15,6],[9,2]],360],"2024-11-24":[[[9,2]],90],"2024-11-25":[[[302,1]],45],"2024-12-01":[[[5,3]],135],"2024-12-03":[[[5,2]],90],"2024-12-04":[[[5,5],[303,1]],350],"2024-12-17":[[[10,1]],45],"2024-12-18":[[[304,1]],125],"2024-12-19":[[[10,2]],90],"2024-12-20":[[[10,1]],45],"2024-12-22":[[[305,1]],125],"2024-12-24":[[[10,2],[1,2]],180],"2024-12-25":[[[306,1]],125],"2024-12-26":[[[10,1]],45],"2024-12-27":[[[10,3]],135],"2024-12-28":[[[10,2]],90],"2024-12-29":[[[1,1],[10,1]],90],"2024-12-31":[[[1,1]],45],"2025-01-03":[[[62,1]],45],"2025-01-06":[[[19,12],[1,1],[62,1]],630],"2025-01-07":[[[3,2]],90],"2025-01-08":[[[3,1]],45],"2025-01-09":[[[3,2]],90],"2025-01-19":[[[1,1]],45],"2025-01-25":[[[10,1]],45],"2025-01-30":[[[62,1],[83,1]],170],"2025-02-01":[[[91,1]],125],"2025-02-02":[[[41,3],[1,1]],420],"2025-02-03":[[[41,1]],125],"2025-02-04":[[[41,3]],375],"2025-02-06":[[[307,1]],125],"2025-02-07":[[[91,1]],125],"2025-02-08":[[[79,2]],250],"2025-02-10":[[[62,1]],45],"2025-02-14":[[[11,4]],180],"2025-02-15":[[[11,5]],225],"2025-02-18":[[[11,3],[308,1],[6,1],[5,1]],430],"2025-02-19":[[[11,1]],45],"2025-02-21":[[[11,3]],135],"2025-02-23":[[[54,6],[2,1]],291],"2025-02-24":[[[5,9],[6,1],[309,1]],495],"2025-02-25":[[[5,4]],180],"2025-02-27":[[[5,5],[310,1]],350],"2025-02-28":[[[5,1]],45],"2025-03-01":[[[6,2],[311,1]],135],"2025-03-03":[[[12,1]],45],"2025-03-05":[[[12,3]],135],"2025-03-06":[[[12,4]],180],"2025-03-07":[[[12,7],[312,1]],440],"2025-03-08":[[[13,1],[313,1],[12,1]],215],"2025-03-09":[[[314,1]],125],"2025-03-10":[[[13,2]],90],"2025-03-11":[[[13,1]],45],"2025-03-13":[[[315,1]],45],"2025-03-14":[[[13,1]],45],"2025-03-15":[[[316,1]],125],"2025-03-16":[[[317,1],[13,1]],170],"2025-03-17":[[[318,1],[3,1]],170],"2025-03-19":[[[319,1]],125],"2025-03-21":[[[3,3],[1,1],[27,1],[13,1],[320,1]],395],"2025-03-22":[[[321,1]],125],"2025-03-23":[[[13,3],[322,1]],260],"2025-03-24":[[[71,4],[1,1],[323,1]],270],"2025-03-26":[[[3,2]],90],"2025-03-28":[[[324,1],[13,1]],170],"2025-03-29":[[[13,3]],135],"2025-03-30":[[[13,2],[325,1]],215],"2025-03-31":[[[3,4],[326,1]],305],"2025-04-01":[[[3,1]],45],"2025-04-02":[[[3,3]],135],"2025-04-03":[[[3,2]],90],"2025-04-04":[[[3,1]],45],"2025-04-05":[[[1,1]],45],"2025-04-06":[[[327,1]],125],"2025-04-07":[[[62,1],[328,1]],170],"2025-04-08":[[[80,2]],90],"2025-04-09":[[[80,1]],45],"2025-04-10":[[[329,1]],125],"2025-04-11":[[[330,1]],125],"2025-04-14":[[[331,1]],125],"2025-04-15":[[[1,3]],135],"2025-04-16":[[[10,1]],45],"2025-04-17":[[[3,1]],45],"2025-04-19":[[[79,1]],125],"2025-04-26":[[[332,1]],125],"2025-04-27":[[[1,1]],45],"2025-04-28":[[[333,1]],125],"2025-11-06":[[[23,2],[334,1],[335,1]],500],"2025-11-07":[[[23,1]],125],"2025-11-08":[[[336,1]],125],"2025-11-09":[[[23,1],[4,1]],170],"2025-11-11":[[[23,3]],375],"2025-11-13":[[[337,1]],125],"2025-11-14":[[[338,1]],45],"2025-11-16":[[[339,1],[340,1],[341,1],[55,1]],500],"2025-11-17":[[[55,5],[342,1]],750],"2025-11-18":[[[343,1]],125],"2025-11-19":[[[23,2],[344,1]],375],"2025-11-20":[[[18,2]],90],"2025-11-25":[[[18,5],[345,1]],350],"2025-11-28":[[[346,1]],125],"2025-11-30":[[[347,1]],125],"2025-12-01":[[[20,2]],90],"2025-12-03":[[[65,2]],90],"2025-12-04":[[[2,2],[1,1]],87],"2025-12-05":[[[20,2]],90],"2025-12-06":[[[348,1]],125],"2025-12-16":[[[349,1],[350,1]],250],"2025-12-20":[[[351,1]],125],"2025-12-22":[[[352,1]],125],"2025-12-23":[[[353,1],[354,1]],250],"2025-12-25":[[[42,4],[355,1],[356,1]],350],"2025-12-26":[[[63,1]],45],"2025-12-27":[[[65,1]],45],"2025-12-30":[[[42,1]],45],"2025-12-31":[[[42,1]],45],"2026-01-02":[[[63,1],[357,1],[358,1]],295],"2026-01-04":[[[10,1]],45],"2026-01-06":[[[63,2]],90],"2026-01-09":[[[2,1],[63,1]],66],"2026-01-14":[[[359,1]],125],"2026-01-18":[[[43,7],[42,1]],920],"2026-01-24":[[[360,1]],125],"2026-01-25":[[[361,1],[362,1]],250],"2026-01-26":[[[72,3]],135],"2026-01-29":[[[6,3]],135],"2026-01-31":[[[363,1],[6,1]],170],"2026-02-01":[[[72,1]],45],"2026-02-03":[[[364,1]],125],"2026-02-04":[[[365,1]],125],"2026-02-07":[[[366,1]],125],"2026-02-09":[[[367,1],[1,1]],170],"2026-02-10":[[[368,1]],125],"2026-02-12":[[[39,1]],45],"2026-02-15":[[[39,2]],90],"2026-02-16":[[[39,3],[369,1]],260],"2026-02-18":[[[56,5]],225],"2026-02-19":[[[370,1],[56,1]],170],"2026-02-20":[[[20,1],[371,1]],170],"2026-02-23":[[[372,1]],125],"2026-02-25":[[[20,1]],45],"2026-02-26":[[[6,5],[373,1],[374,1]],475],"2026-02-28":[[[5,3]],135],"2026-03-01":[[[5,2],[375,1],[376,1]],340],"2026-03-04":[[[20,1],[1,1]],90],"2026-03-07":[[[33,8]],360],"2026-03-09":[[[377,1]],125],"2026-03-12":[[[20,3]],135],"2026-03-15":[[[378,1]],125],"2026-03-16":[[[379,1]],125],"2026-03-18":[[[380,1]],125],"2026-03-19":[[[14,6]],270],"2026-03-20":[[[14,10],[381,1],[84,1]],700],"2026-03-21":[[[20,2]],90],"2026-03-28":[[[382,1],[87,1],[383,1]],295],"2026-03-29":[[[384,1]],125],"2026-03-30":[[[385,1]],125],"2026-03-31":[[[74,1]],125],"2026-04-03":[[[386,1]],125],"2026-04-05":[[[387,1]],125],"2026-04-10":[[[92,2],[388,1]],181],"2026-04-12":[[[389,1],[390,1]],250],"2026-04-13":[[[391,1]],125],"2026-04-14":[[[392,1]],125],"2026-04-17":[[[393,1]],45],"2026-04-19":[[[394,1],[395,1]],250],"2026-04-22":[[[396,1]],125],"2026-04-23":[[[93,2],[397,1],[398,1],[399,1],[400,1]],670],"2026-04-25":[[[401,1]],125],"2026-04-29":[[[34,4]],180],"2026-05-01":[[[34,4]],180],"2026-05-03":[[[44,7]],875],"2026-05-04":[[[94,2],[402,1]],295],"2026-05-21":[[[0,6],[64,5],[403,1]],620],"2026-05-22":[[[0,8]],360],"2026-05-23":[[[0,12]],540],"2026-05-24":[[[0,7]],315],"2026-05-25":[[[0,11]],495],"2026-05-26":[[[0,10]],450],"2026-05-27":[[[0,6]],270],"2026-05-28":[[[0,11]],495],"2026-05-29":[[[0,5],[404,1]],350],"2026-06-01":[[[0,1]],45],"2026-06-02":[[[0,13],[405,1]],710],"2026-06-03":[[[0,1]],45],"2026-06-04":[[[0,3]],135],"2026-06-06":[[[57,4]],180],"2026-06-07":[[[57,2],[17,1]],135],"2026-06-08":[[[0,8]],360],"2026-06-09":[[[0,9],[406,1]],530],"2026-06-10":[[[0,9]],405],"2026-06-11":[[[0,8]],360],"2026-06-12":[[[0,24]],1080],"2026-06-13":[[[0,6]],270],"2026-06-14":[[[0,16]],720],"2026-06-15":[[[0,1]],45],"2026-06-16":[[[0,11]],495],"2026-06-17":[[[0,5]],225],"2026-06-18":[[[0,11]],495],"2026-06-19":[[[0,15]],675],"2026-08-02":[[[81,2],[407,1]],167],"2026-08-03":[[[408,1]],45],"2026-08-05":[[[81,1]],21]},"shows":["The Blacklist","Suits","Young Sheldon","House of Cards","Breaking Bad","Narcos","Bridgerton","Sex Education","Jamtara - Sabka Number Ayega","Our Beloved Summer","My Liberation Notes","Sacred Games","The Glory","When Life Gives You Tangerines","ONE PIECE","Yeh Kaali Kaali Ankhein","The Diplomat","All of Us Are Dead","Delhi Crime","Selection Day","The Lincoln Lawyer","Rana Naidu","Tribhuvan Mishra CA Topper","Kurukshetra","Feria","The Fame Game","Eternally Confused and Eager for Love","Khakee","1899","Choona","Berlin and the Jewels of Paris","Heeramandi","Obliterated","Vladimir","If Wishes Could Kill","She","Taj Mahal 1989","Kota Factory","The Queen's Gambit","Kohrra","Kaala Paani","Black Warrant","Because This Is My First Life","Taskaree","Glory","A Suitable Boy","Feels Like Ishq","Bombay Begums","Stay Close","Stories by Rabindranath Tagore","Scoop","Parasyte","Anthracite","IC 814","Zero Day","Last Samurai Standing","Weak Hero","Teach You a Lesson","Little Things","Typewriter","Devil in Ohio","The Playbook","Summer Strike","Better Call Saul","Berlin and the Lady with an Ermine","Too Hot to Handle","How to Become a Tyrant","Mai","Indian Predator","Transformers","Hot Girls Wanted","Adolescence","Maid","Alma Matters","Spider-Man","Headspace Guide to Sleep","Fabulous Lives of Bollywood Wives","McGREGOR FOREVER","Jawan","The Greatest Rivalry","Pablo Escobar, el patr\u00f3n del mal","The Big Bang Theory","Masaba Masaba","Venom","Peaky Blinders","Guns & Gulaabs","The Mind, Explained","The Night Agent","The Billion Dollar Code","Deceitful Love","Zombieverse","SAKAMOTO DAYS","Maamla Legal Hai","Boots","Flunked","Don't Look Up","Class of '83","Mowgli","","Zindagi in Short","Bulbul Can Sing","Love Per Square Foot","Chandigarh Kare Aashiqui","Cobra Kai","Chopsticks","Ginny Weds Sunny","Meenakshi Sundareshwar","Call My Agent Bollywood","Emily in Paris","Aranyak","Tribhanga - Tedhi Medhi Crazy","Kapoor & Sons","Dolly Kitty Aur Woh Chamakte Sitare","Kaali Khuhi","Door Ke Darshan","Shimla Mirchi","Bhaag Beanie Bhaag","Haider","Upstarts","Malaal","Music Teacher","The Royal Treatment","The Girl Next Door","Shyam Singha Roy","MINDHUNTER","Minnal Murali","The Legend of Bhagat Singh","The OA","Kapil Sharma","Margarita with a Straw","Sex/Life","Ala Vaikunthapurramuloo","House Arrest","Sweet Home","Looop Lapeta","The Chestnut Man","Inventing Anna","Arrival","Thirty-Nine","Madam Chief Minister","Texas Chainsaw Massacre","Archive 81","Downfall","Escape Room","Badhaai Do","Kilometers and Kilometers","'83","Hey Sinamika","Hey Sinamika (Hindi)","Hey Sinamika (Malayalam)","Jai Mummy Di","Cobalt Blue","The Adam Project","Rang De Basanti","Dasvi","The In Between","Etharkkum Thunindhavan","PK","Thackeray (Hindi)","Partition 1947","Happiness","Gangubai Kathiawadi","Jaadugar","Anek","Raw (Hindi)","Darlings","Shabaash Mithu","Barfi!","Wedding Season","Major (Hindi)","Mersal","Sherdil","Race","Black Mirror","Saaho","HIT","Hamid","Game Over (Hindi Version)","Talvar","Pinky Memsaab","Ranveer vs Wild with Bear Grylls","Jogi","Jab Harry Met Sejal","Delhi 6","The Woods","Lou","My Next Guest with David Letterman and Shah Rukh Khan","A Trip to Infinity","Ronnie Coleman","Plan A Plan B","Laal Singh Chaddha","Vir Das","DAHMER","Friends","The Dictator","Dobaaraa","Gurgaon","Monica, O My Darling","Dhokha - Round D Corner","Kumari","Bulbbul","Qala","Adipurush","Tu Jhoothi Main Makkaar","La La Land","Friday Night Plan","Humpty Sharma Ki Dulhania","Chor Nikal Ke Bhaga","Raees","Trial by Fire","Fifty Shades Darker","Heart of Stone","Spy Ops","Sir (Hindi)","Extraction 2","Extraction","365 Days","Dharmakshetra","Get Smart With Money","Paan Singh Tomar","The Game Changers","Bad Boy Billionaires","Bheed","Jaane Jaan","Kabhi Alvida Naa Kehna","Cirkus","Chaman Bahaar","Bhool Bhulaiyaa 2","Kathal - A Jackfruit Mystery","Wild Wild Country","OMG 2","Fireplace for Your Home","#Alive","Hitler - A Career","Ghost Stories","Dream Girl 2","Man in Love","Iraivan (Hindi)","Minions","AlRawabi School for Girls","The 8th Night","Gyeongseong Creature","Life on Our Planet","Turning Point","Army of the Dead","Alice in Borderland","Amar Singh Chamkila","All India Rank","Mission Majnu","Fighter","Article 370","Rebel Moon \u2014 Part Two","Laapataa Ladies","Madras Caf\u00e9","Dange","Phantom","Hard Feelings","Disturbia","Underwater","Dhak Dhak","Thank You for Coming","Mission Raniganj","Nowhere","Thai Massage","Naam Shabana","Sajini Shinde Ka Viral Video","Crew","Eric","Love at First Sight","Jaws","Under Paris","Bade Miyan Chote Miyan","The To Do List","Hitler and the Nazis","Wild Wild Punjab","Thanksgiving","Savi","Seven","The Principles of Pleasure","Phir Aayi Hasseen Dillruba","Dark Desire","S.W.A.T.","Ulajh","Kabir Singh","The Meg","Steve Jobs","The Platform 2","Orgasm Inc","Kondal","Sanju","CTRL","The Shawshank Redemption","Do Patti","Khel Khel Mein","Bhool Bhulaiyaa","Meiyazhagan","Sector 36","Saripodhaa Sanivaaram","Jake Paul vs. Mike Tyson","The Recruit","The Buckingham Murders","Kaminey","Itaewon Class","Lucky Baskhar","Vicky Vidya ka Woh Wala Video","Yo Yo Honey Singh","Christmas Gameday","Udta Punjab","The Godfather","C.I.D","Gifted","Dabba Cartel","Dabangg 3","Qarib Qarib Singlle","Andrew Schulz","My Mister","Emergency","Raajneeti","Shaitan","The Social Network","Tamasha","Dear Zindagi","Dev.D","Girl from Nowhere","21","Deva","Moneyball","TEST","WWE SmackDown","What Are the Odds?","Pop the Balloon LIVE","Running with the Devil","Jewel Thief - The Heist Begins","Havoc","If Anything Happens I Love You","The Ba***ds of Bollywood","Materialists","Baramulla","As You Stood By","Inspector Zende","Freud","Now You See Me","The Amazing Spider-Man","The Amazing Spider-Man 2","Now You See Me 2","Love & Other Drugs","Tehran","Sunny Sanskari ki Tulsi Kumari","Maharaja","Stand by Me","Kaantha","Jake Paul vs. Anthony Joshua","Raat Akeli Hai","The Great Flood","Raat Akeli Hai - The Bansal Murders","Dhoom Dhaam","Queen of Tears","Detective Byomkesh Bakshy!","Haq","People We Meet on Vacation","Coach Carter","Laaga Chunari Mein Daag","The Rip","Royal Rumble","Yeh Jawaani Hai Deewani","Band Baaja Baaraat","Seven Years in Tibet","Tere Ishk Mein","Unfamiliar","Dum Laga Ke Haisha","13 Hours","Baywatch","The Devil's Own","Army of Thieves","White House Down","El Camino","All Quiet on the Western Front","War Machine","Outside the Wire","The Bourne Legacy","A HOUSE OF DYNAMITE","Anora","EuroTrip","Tiger Zinda Hai","Chennai Express","Central Intelligence","Uncharted","Anaconda","Not Another Teen Movie","True Spirit","Thrash","6 Days","The Old Guard 2","The Cleaning Lady","Toaster","Ustaad Bhagat Singh","The Elixir","Big World","The Year I Started Masturbating","Radioactive Emergency","3%","Apex","The Great Indian Kapil Show","The Roast of Kevin Hart","Heatwave","Ladies First","Meg 2","Con City","Elite Force"],"chips":[["The Blacklist",217],["Suits",134],["Young Sheldon",105],["House of Cards",73],["Breaking Bad",42],["Narcos",35],["Bridgerton",33],["Sex Education",30],["Jamtara - Sabka Number Ayega",18],["Our Beloved Summer",16],["My Liberation Notes",16],["Sacred Games",16],["The Glory",16],["When Life Gives You Tangerines",16]],"streaks":[[15,"2025-03-28","2025-04-11"],[15,"2024-10-04","2024-10-18"],[14,"2026-06-06","2026-06-19"],[13,"2023-09-06","2023-09-18"]],"gaps":[[278,"2022-12-01","2023-09-06"],[191,"2025-04-28","2025-11-06"],[159,"2023-11-05","2024-04-13"],[101,"2022-04-22","2022-08-02"]],"total":1557,"active":458,"distinct":409,"busiest":["2022-01-06",1309],"hours":1655};
+var SHOWS = DATA.shows;
+
+/* ── facts ── */
+var START = new Date(2022,0,1), END = new Date(2026,7,5);
+var spanDays = Math.round((END-START)/864e5) + 1;
+function set(id,v){ document.getElementById(id).textContent = v; }
+set("fTotal", DATA.total.toLocaleString());
+set("fActive", DATA.active.toLocaleString());
+set("fDark", (spanDays - DATA.active).toLocaleString());
+set("fRate", Math.round(DATA.active/spanDays*100) + "%");
+set("fShows", DATA.distinct.toLocaleString());
+
+/* ── helpers ── */
+var MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function iso(d){
+  return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2);
+}
+function pretty(s){
+  var p=s.split("-");
+  return parseInt(p[2],10)+" "+MON[+p[1]-1]+" "+p[0];
+}
+function level(n){ return n===0?0 : n===1?1 : n===2?2 : n<=5?3 : n<=11?4 : 5; }
+
+/* busiest single day (needs MON/pretty above) */
+(function(){
+  var best=0,bk=null,k,l,t,i;
+  for(k in DATA.days){ l=DATA.days[k][0]; t=0; for(i=0;i<l.length;i++) t+=l[i][1]; if(t>best){best=t;bk=k;} }
+  set("fPeak", best);
+  document.getElementById("fPeak").parentNode.querySelector(".k").textContent = "Busiest day · " + pretty(bk);
+})();
+
+/* ── build the five year grids ── */
+var maps=document.getElementById("maps"), html="";
+for(var y=2022; y<=2026; y++){
+  var from=new Date(y,0,1), to=new Date(y,11,31);
+  if(y===2026) to=new Date(2026,7,5);
+
+  // pad back to the Sunday on or before Jan 1 so weekday rows line up
+  var cur=new Date(from); cur.setDate(cur.getDate()-cur.getDay());
+  var cells="", months="", count=0, lastMon=-1, colOfMonth={};
+
+  while(cur<=to){
+    var inRange = cur>=from && cur<=to;
+    var k=iso(cur), rec=inRange ? DATA.days[k] : null;
+    var n=0, i;
+    if(rec){ for(i=0;i<rec[0].length;i++) n+=rec[0][i][1]; count+=n; }
+    cells += inRange
+      ? '<i data-d="'+k+'" data-l="'+level(n)+'"></i>'
+      : '<i class="void"></i>';
+    if(cur.getDay()===0){
+      var m=cur.getMonth();
+      if(inRange && m!==lastMon && !colOfMonth[m]){ colOfMonth[m]=1; months+='<span>'+MON[m]+'</span>'; lastMon=m; }
+      else months+='<span></span>';
+    }
+    cur.setDate(cur.getDate()+1);
+  }
+
+  html += '<div class="yr" data-y="'+y+'">' +
+      '<div class="yr__head"><span class="y">'+y+'</span>' +
+        '<span class="n" data-n="'+count+'">'+count+' played</span></div>' +
+      '<div class="scroller"><div class="mon">'+months+'</div>' +
+      '<div class="grid">'+cells+'</div></div>' +
+      '<div class="read" hidden></div>' +
+    '</div>';
+}
+maps.innerHTML = html;
+
+/* ── cell sizing: fit the widest year to the container, else scroll ── */
+var scrollers = maps.querySelectorAll(".scroller");
+function sizeCells(){
+  var w = maps.clientWidth;
+  var cell = Math.floor((w - 52*2) / 53);
+  var gap = 2;
+  if(cell < 9){ cell = 11; }          // too tight to read or tap — scroll instead
+  cell = Math.min(cell, 20);
+  document.documentElement.style.setProperty("--cell", cell + "px");
+  document.documentElement.style.setProperty("--gap", gap + "px");
+  document.body.classList.toggle("scrolls", (cell + gap) * 53 > w + 4);
+}
+sizeCells();
+var rt; window.addEventListener("resize", function(){
+  clearTimeout(rt); rt=setTimeout(sizeCells,150);
+});
+
+/* ── keep the five year rows scrolled together ── */
+var syncing=false;
+Array.prototype.forEach.call(scrollers, function(sc){
+  sc.addEventListener("scroll", function(){
+    if(syncing) return;
+    syncing=true;
+    var x=sc.scrollLeft;
+    Array.prototype.forEach.call(scrollers, function(o){ if(o!==sc) o.scrollLeft=x; });
+    requestAnimationFrame(function(){ syncing=false; });
+  }, {passive:true});
+});
+
+/* ── readout ── */
+var activeCell=null;
+function showRead(cell){
+  var yr=cell.closest(".yr"), read=yr.querySelector(".read");
+  var k=cell.getAttribute("data-d"), rec=DATA.days[k];
+  if(activeCell) activeCell.classList.remove("hit");
+  cell.classList.add("hit");
+  activeCell=cell;
+
+  var body='<div class="d">'+pretty(k)+'</div>';
+  if(!rec){
+    body += '<div style="font-size:12.5px;color:var(--mut)">Nothing played.</div>';
+  } else {
+    var list=rec[0], total=0, i;
+    for(i=0;i<list.length;i++) total+=list[i][1];
+    body += '<ul>';
+    for(i=0;i<Math.min(list.length,5);i++){
+      body += '<li><span>'+SHOWS[list[i][0]]+'</span><b>'+list[i][1]+'</b></li>';
+    }
+    body += '</ul>';
+    if(list.length>5) body += '<div class="f" style="border:0;padding-top:4px">+ '+(list.length-5)+' more</div>';
+    body += '<div class="f">'+total+' played · ≈'+Math.round(rec[1]/60)+' hrs</div>';
+  }
+  read.innerHTML=body;
+  read.hidden=false;
+
+  // place above the cell, clamped inside the year block
+  var cr=cell.getBoundingClientRect(), yrr=yr.getBoundingClientRect();
+  read.classList.add("on");
+  var rw=read.offsetWidth, rh=read.offsetHeight;
+  var left=cr.left - yrr.left + cr.width/2 - rw/2;
+  left=Math.max(0, Math.min(left, yrr.width - rw));
+  var top=cr.top - yrr.top - rh - 8;
+  if(top < -4) top = cr.bottom - yrr.top + 8;
+  read.style.left=left+"px";
+  read.style.top=top+"px";
+}
+function hideRead(){
+  if(activeCell){ activeCell.classList.remove("hit"); activeCell=null; }
+  Array.prototype.forEach.call(maps.querySelectorAll(".read"), function(r){
+    r.classList.remove("on");
+    setTimeout(function(){ if(!r.classList.contains("on")) r.hidden=true; }, 180);
+  });
+}
+maps.addEventListener("pointerover", function(e){
+  var c=e.target.closest("i[data-d]");
+  if(c) showRead(c);
+});
+maps.addEventListener("pointerdown", function(e){
+  var c=e.target.closest("i[data-d]");
+  if(c){ e.preventDefault(); showRead(c); }
+});
+maps.addEventListener("pointerleave", hideRead);
+document.addEventListener("pointerdown", function(e){
+  if(!e.target.closest("i[data-d]")) hideRead();
+});
+
+/* ── filter chips ── */
+var chips=document.getElementById("chips");
+var chipHTML='<button class="chip" data-s="-1" aria-pressed="true">All activity</button>';
+DATA.chips.forEach(function(c){
+  var i=SHOWS.indexOf(c[0]);
+  chipHTML += '<button class="chip" data-s="'+i+'" aria-pressed="false">'+
+    c[0].replace(/&/g,"&amp;").replace(/</g,"&lt;")+' <span class="c">'+c[1]+'</span></button>';
+});
+chips.innerHTML=chipHTML;
+
+var cellsByDate={};
+Array.prototype.forEach.call(maps.querySelectorAll("i[data-d]"), function(c){
+  cellsByDate[c.getAttribute("data-d")]=c;
+});
+
+function applyFilter(si){
+  var all = si === -1;
+  Array.prototype.forEach.call(chips.children, function(b){
+    b.setAttribute("aria-pressed", String(+b.getAttribute("data-s") === si));
+  });
+
+  var perYear={};
+  for(var k in DATA.days){
+    var cell=cellsByDate[k];
+    if(!cell) continue;
+    var list=DATA.days[k][0], n=0, i;
+    for(i=0;i<list.length;i++){
+      if(all || list[i][0]===si) n+=list[i][1];
+    }
+    cell.classList.toggle("mute", n===0);
+    if(!all) cell.setAttribute("data-l", level(n));
+    var y=k.slice(0,4);
+    perYear[y]=(perYear[y]||0)+n;
+  }
+  if(all){
+    for(k in DATA.days){
+      var c2=cellsByDate[k];
+      if(!c2) continue;
+      var l2=DATA.days[k][0], t=0, j;
+      for(j=0;j<l2.length;j++) t+=l2[j][1];
+      c2.setAttribute("data-l", level(t));
+    }
+  }
+  Array.prototype.forEach.call(maps.querySelectorAll(".yr"), function(yr){
+    var y=yr.getAttribute("data-y");
+    yr.querySelector(".n").textContent = (perYear[y]||0) + " played";
+  });
+  hideRead();
+}
+chips.addEventListener("click", function(e){
+  var b=e.target.closest(".chip");
+  if(b) applyFilter(+b.getAttribute("data-s"));
+});
+applyFilter(-1);
+
+/* ── streaks & gaps ── */
+document.getElementById("streaks").innerHTML = DATA.streaks.map(function(s){
+  return '<div class="item"><div class="n">'+s[0]+'</div><div class="b">' +
+    '<div class="t">'+pretty(s[1])+' → '+pretty(s[2])+'</div>' +
+    '<div class="s">'+s[0]+' days without a break</div></div></div>';
+}).join("");
+
+document.getElementById("gaps").innerHTML = DATA.gaps.map(function(g){
+  return '<div class="item cool"><div class="n">'+g[0]+'</div><div class="b">' +
+    '<div class="t">'+pretty(g[1])+' → '+pretty(g[2])+'</div>' +
+    '<div class="s">'+(g[0]>=60 ? Math.round(g[0]/30.4)+' months dark' : g[0]+' days dark')+'</div></div></div>';
+}).join("");
+
+})();
+</script>
+</body>
+</html>
